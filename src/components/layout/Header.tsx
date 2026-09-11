@@ -24,16 +24,16 @@ const Header = () => {
   // })
 
   const { mutate } = useLogout();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     mutate(undefined, {
       onSuccess: (res) => {
         toast.success(res.message);
-        // redirect("/login");
+        redirect("/login");
         queryClient.removeQueries({
-          queryKey: ['user']
-        })
+          queryKey: ["user"],
+        });
       },
       onError: (err) => {
         toast.error(err.message);
@@ -58,18 +58,20 @@ const Header = () => {
           ))}
         </div>
         <div>
-          {!isLoading && data ?
-            (<Button onClick={() => handleLogout()} variant={"destructive"}>
+          {!isLoading && data && (
+            <Button onClick={() => handleLogout()} variant={"destructive"}>
               Logout
-            </Button>)
-            : (<Button
+            </Button>
+          )}
+          {!isLoading && !data && (
+            <Button
               variant={"outline"}
               render={<Link href={"/login"}>Login</Link>}
               nativeButton={false}
             >
               Login
-            </Button>)
-          }
+            </Button>
+          )}
         </div>
       </div>
     </header>

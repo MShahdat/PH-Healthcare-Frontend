@@ -7,6 +7,13 @@ export const userLogin = (payload: { email: string; password: string }) => {
   });
 };
 
+export const googleAuth = (payload: { idToken: string }) => {
+  return apiClient("/auth/google", {
+    method: "POST",
+    body: payload,
+  });
+};
+
 export const logout = () => {
   return apiClient("/auth/logout", {
     method: "POST",
