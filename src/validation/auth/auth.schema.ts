@@ -35,10 +35,8 @@ export const registerZodSchema = z.object({
     .regex(/[^A-Za-z0-9]/, {
       message: "Password must contain at least one special character.",
     }),
-  patient: z
-    .object({
-      contactNumber: z.string().optional(),
-      address: z.string().optional(),
-    })
-    .optional(),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Password do not match",
+  path: ['confirmPassword']
 });

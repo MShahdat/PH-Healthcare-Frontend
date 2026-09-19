@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Spinner } from "../ui/spinner";
 import { redirect } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
+import GoogleAuth from "../module/googleAuth/googleAuth";
 
 export function LoginForm({
   className,
@@ -30,7 +31,6 @@ export function LoginForm({
   const [showPass, setShowPass] = useState(false);
 
   const { mutate, isPending } = useLogin();
-  const { mutate: google } = useGoogle();
 
   const form = useForm({
     defaultValues: {
@@ -60,30 +60,6 @@ export function LoginForm({
       });
     },
   });
-
-  const handleGoogleSuccess = (credentialResponse: { credential?: string }) => {
-    const idToken = credentialResponse.credential;
-    if (!idToken) {
-      toast.error("Goole OAuth Failed!");
-      return;
-    }
-    google(
-      { idToken },
-      {
-        onSuccess: () => {
-          toast.success("Google OAuth Successfully");
-          redirect("/");
-        },
-        onError: (err) => {
-          toast.error(err.message || "Google OAuth Failed");
-        },
-      },
-    );
-  };
-
-  const handleGoogleError = () => {
-    toast.error("Google OAuth Failed!");
-  };
 
   return (
     <form
@@ -146,7 +122,7 @@ export function LoginForm({
                       onClick={() => setShowPass(!showPass)}
                       className="absolute top-1/2 right-4 -translate-y-1/2"
                     >
-                      {!showPass ? <EyeClosed /> : <Eye />}
+                      {!showPass ? <EyeClosed className="size-4" /> : <Eye className="size-4" />}
                     </button>
                     <Input
                       id={field.name}
@@ -177,14 +153,10 @@ export function LoginForm({
           </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
-        <Field>
-          <GoogleLogin
-            shape="pill"
-            text="continue_with"
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-          ></GoogleLogin>
 
+        <GoogleAuth />
+
+        <Field>
           <FieldDescription className="text-center">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="underline underline-offset-4">
