@@ -9,29 +9,24 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
-import { registerZodSchema } from "@/validation/auth/auth.schema";
-import { useState } from "react";
-import { useRegister } from "@/hooks";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
-import { File } from "buffer";
 import { FileUp, X } from "lucide-react";
-import { isAcceptedFile, isAcceptedFileType, MAX_FILE_SIZE } from "@/validation/doctor/doctor-apply-validation";
+import { isAcceptedFile, isAcceptedFileType, MAX_ADDITIONAL_FILES, MAX_FILE_SIZE } from "@/validation/doctor/doctor-apply-validation";
 import { formatFileSize } from "@/utils/file-size-format";
+import { useDoctorApply } from "@/hooks/doctor.hook";
 
 export function DoctorApplyForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
 
-  const { mutate, isPending } = useRegister()
+  const { mutate, isPending } = useDoctorApply()
 
   const form = useForm({
     defaultValues: {
@@ -47,11 +42,33 @@ export function DoctorApplyForm({
       additionalFiles: [] as File[],
     },
     onSubmit: ({ value }) => {
-      console.log(value);
       const data = {
-        name: value.name,
-        email: value.email,
+        user: {
+          name: value.name.trim(),
+          email: value.email.trim(),
+        },
+        doctor: {
+          bio: value.bio.trim(),
+          specialization: value.specialization.trim(),
+          licenceNumber: value.licenceNumber.trim(),
+          qualifications: value.qualifications.trim(),
+          experienceYears: Number(value.experienceYears),
+          consultationFee: Number(value.consultationFee)
+        }
       }
+      console.log('data', data)
+      mutate({
+        data,
+        resume: value.resume as File,
+        additionalFiles: value.additionalFiles as File[]
+      }, {
+        onSuccess: (res) => {
+          toast.success(res.message)
+        },
+        onError: (err) => {
+          toast.error(err.message)
+        }
+      })
     },
   });
 
@@ -278,7 +295,7 @@ export function DoctorApplyForm({
                 return (
                   <Field>
                     <FieldLabel htmlFor="resume-field">Resume</FieldLabel>
-                    <div>
+                    <div >
                       <Button
                         variant={"outline"}
                         size={"sm"}
@@ -289,9 +306,9 @@ export function DoctorApplyForm({
                         Upload resume
                       </Button>
                       {file && (
-                        <span className="ml-2 inline-flex items-center gap-2">
-                          <span>{file.name}</span>
-                          <span className="text-sm">({formatFileSize(file.size)})</span>
+                        <span className="ml-0 inline-flex items-center gap-2 bg-gray-100 px-2 py-0.5 rounded-md">
+                          <span className="text-xs">{file.name}</span>
+                          <span className="text-xs">({formatFileSize(file.size)})</span>
                           <X
                             size={16}
                             className="cursor-pointer text-red-500"
@@ -343,19 +360,12 @@ export function DoctorApplyForm({
                         <FileUp size={4} />
                         Additional Files
                       </Button>
-                      {/* {files && (
-                        <span className="ml-2 inline-flex items-center gap-2">
-                          <span>{files.name}</span>
-                          <span className="text-sm">({formatFileSize(file.size)})</span>
-                          <X
-                            size={16}
-                            className="cursor-pointer text-red-500"
-                            onClick={() => field.handleChange(null)}
-                          />
-                        </span>
-                      )} */}
-                      {!files &&
+                      {files.length === 0 &&
                         <span className="text-xs ml-1.5">PDF, DOC, DOCX, IMAGE Up to {MAX_FILE_SIZE} MB</span>}
+
+                      {files.length > 0 && (
+                        <span className="text-xs ml-1.5">{files.length} of {MAX_ADDITIONAL_FILES} files</span>
+                      )}
                       <input
                         type="file"
                         id="additional-file-field"
@@ -373,12 +383,35 @@ export function DoctorApplyForm({
                             return;
                           }
 
-                          field.handleChange([...files, ...incomming]);
+                          const totalFiles = [...files, ...incomming]
+                          if (totalFiles.length > MAX_ADDITIONAL_FILES) {
+                            field.handleBlur()
+                            return;
+                          }
+
+                          field.handleChange(totalFiles);
                           e.target.value = ''
                         }}
                         className="sr-only"
                       />
                     </div>
+                    {files && files.length > 0 && (
+                      <ul className=" space-y-1">
+                        {files.map((file: File, index: number) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <span className="ml-0 inline-flex items-center gap-2 bg-gray-100 px-2 py-0.5 rounded-md">
+                              <span className="text-xs">{file.name}</span>
+                              <span className="text-xs">({formatFileSize(file.size)})</span>
+                              <X
+                                size={16}
+                                className="cursor-pointer text-red-500"
+                                onClick={() => field.handleChange(files.filter((_, i) => i !== index))}
+                              />
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </Field>
                 )
               }
