@@ -17,11 +17,10 @@ import { loginZodSchema } from "@/validation/auth/auth.schema";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
-import { useGoogle, useLogin } from "@/hooks";
+import { useLogin } from "@/hooks";
 import { toast } from "sonner";
 import { Spinner } from "../ui/spinner";
 import { redirect } from "next/navigation";
-import { GoogleLogin } from "@react-oauth/google";
 import GoogleAuth from "../module/googleAuth/googleAuth";
 
 export function LoginForm({

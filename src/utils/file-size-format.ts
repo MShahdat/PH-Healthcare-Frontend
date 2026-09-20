@@ -1,0 +1,8 @@
+
+
+export const formatFileSize = (bytes: number) => {
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(0)} KB`
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(0)}MB`
+}

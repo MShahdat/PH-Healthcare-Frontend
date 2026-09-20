@@ -6,12 +6,13 @@ import { Button } from '../ui/button';
 import { RefreshCwIcon } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '../ui/input-otp';
 import { redirect, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useEmailVerify } from '@/hooks';
 import { toast } from 'sonner';
 import { Spinner } from '../ui/spinner';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 
+const resendTime = 120
 
 const OtpPage = () => {
   const params = useSearchParams()
@@ -24,8 +25,20 @@ const OtpPage = () => {
 
   const [otp, setOtp] = useState('')
   const [isInvalid, setIsInvalid] = useState(false)
+  const [resendOtpCount, setResendOtpCount] = useState(resendTime)
 
   const { mutate, isPending } = useEmailVerify()
+
+  useEffect(() => {
+    if (resendOtpCount < 1) {
+      return
+    }
+    const timer = setInterval(() => {
+      setResendOtpCount((prev) => prev - 1)
+    }, 1000);
+
+    return () => clearInterval(timer)
+  })
 
   const handleSubmit = () => {
 
@@ -75,7 +88,7 @@ const OtpPage = () => {
               <FieldLabel htmlFor="otp-verification">
                 Verification code
               </FieldLabel>
-              <Button type="button" variant="outline" size="xs">
+              <Button disabled={resendOtpCount > 0} type="button" variant="outline" size="xs">
                 <RefreshCwIcon />
                 Resend Code
               </Button>
@@ -111,11 +124,14 @@ const OtpPage = () => {
               )
             }
           </Field>
+
+          <CardDescription className={`${resendOtpCount < 1 ? 'opacity-0' : 'opacity-100'}`}>Resend in {resendOtpCount}</CardDescription>
+
         </form>
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" disabled={isPending} form="otp-form" className="w-full">
+          <Button type="submit" disabled={resendOtpCount < 1} form="otp-form" className="w-full">
             {isPending ? <>
               <Spinner /> Verify
             </>

@@ -30,10 +30,10 @@ const Header = () => {
     mutate(undefined, {
       onSuccess: (res) => {
         toast.success(res.message);
-        redirect("/login");
         queryClient.removeQueries({
           queryKey: ["user"],
         });
+        redirect("/login");
       },
       onError: (err) => {
         toast.error(err.message);
