@@ -8,6 +8,7 @@ import { logout } from "@/api";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import AuthLoading from "../auth/auth-loading";
 
 const Header = () => {
   const route = [
@@ -16,7 +17,7 @@ const Header = () => {
     { name: "Contact", url: "/contact" },
   ];
 
-  const { data, isError, isLoading } = useGetMe();
+  const { data, isError, isPending } = useGetMe();
   // console.log({
   //   data,
   //   isError,
@@ -41,6 +42,10 @@ const Header = () => {
     });
   };
 
+  if (isPending) {
+    return <p className="h-16 text-center ">loading...</p>;
+  }
+
   return (
     <header className="w-full px-4 border h-16">
       <div className="flex items-center justify-between h-full max-w-7xl mx-auto">
@@ -58,12 +63,12 @@ const Header = () => {
           ))}
         </div>
         <div>
-          {!isLoading && data && (
+          {!isPending && data && (
             <Button onClick={() => handleLogout()} variant={"destructive"}>
               Logout
             </Button>
           )}
-          {!isLoading && !data && (
+          {!isPending && !data && (
             <Button
               variant={"outline"}
               render={<Link href={"/login"}>Login</Link>}
