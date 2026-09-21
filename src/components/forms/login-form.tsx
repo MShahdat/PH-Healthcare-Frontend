@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useForm } from "@tanstack/react-form";
-import { loginZodSchema } from "@/validation/auth/auth.schema";
+import { loginZodSchema } from "@/validation/auth.schema";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
@@ -121,7 +121,11 @@ export function LoginForm({
                       onClick={() => setShowPass(!showPass)}
                       className="absolute top-1/2 right-4 -translate-y-1/2"
                     >
-                      {!showPass ? <EyeClosed className="size-4" /> : <Eye className="size-4" />}
+                      {!showPass ? (
+                        <EyeClosed className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
                     </button>
                     <Input
                       id={field.name}
@@ -156,10 +160,20 @@ export function LoginForm({
         <GoogleAuth />
 
         <Field>
-          <FieldDescription className="text-center">
+          <FieldDescription className="">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="underline underline-offset-4">
+            <Link
+              href="/register"
+              className="underline font-semibold underline-offset-4"
+            >
               Sign up
+            </Link>{" "}
+            Apply as a doctor?{" "}
+            <Link
+              href="/doctor-apply"
+              className="underline font-semibold underline-offset-4"
+            >
+              Apply here
             </Link>
           </FieldDescription>
         </Field>

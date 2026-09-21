@@ -18,7 +18,7 @@ export default function EmailVerifyPage() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <Suspense fallback={<p>loading...</p>}>
-              <OtpPage mode="patient" resendTime={300} />
+              <OtpPage mode="doctor" resendTime={300} />
             </Suspense>
           </div>
         </div>

@@ -14,9 +14,8 @@ export interface DoctorApplicationData {
   };
 }
 
-
 export interface DoctorApplicationPayload {
-  data: DoctorApplicationData,
-  resume: File,
-  additionalFiles: File[]
+  data: DoctorApplicationData;
+  resume: File;
+  additionalFiles: File[];
 }

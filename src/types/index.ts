@@ -1,1 +1,1 @@
-export * from './doctor.type'
+export * from "./doctor.type";

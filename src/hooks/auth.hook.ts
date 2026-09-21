@@ -1,19 +1,24 @@
-import { getMe, googleAuth, logout, userEmailVerify, userLogin, userRegister } from "@/api";
+import {
+  getMe,
+  googleAuth,
+  logout,
+  userEmailVerify,
+  userLogin,
+  userRegister,
+} from "@/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-
 
 export const useRegister = () => {
   return useMutation({
-    mutationFn: userRegister
-  })
-}
+    mutationFn: userRegister,
+  });
+};
 
 export const useEmailVerify = () => {
   return useMutation({
-    mutationFn: userEmailVerify
-  })
-}
-
+    mutationFn: userEmailVerify,
+  });
+};
 
 export const useLogin = () => {
   return useMutation({

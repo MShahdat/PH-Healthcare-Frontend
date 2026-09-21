@@ -1,69 +1,126 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { Field, FieldError, FieldLabel } from '../ui/field';
-import { Button } from '../ui/button';
-import { RefreshCwIcon } from 'lucide-react';
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '../ui/input-otp';
-import { redirect, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useEmailVerify } from '@/hooks';
-import { toast } from 'sonner';
-import { Spinner } from '../ui/spinner';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Button } from "../ui/button";
+import { RefreshCwIcon } from "lucide-react";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "../ui/input-otp";
+import { redirect, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDoctorEmailVerify, useEmailVerify } from "@/hooks";
+import { toast } from "sonner";
+import { Spinner } from "../ui/spinner";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { formatMinutesSecond } from "@/utils";
 
-const resendTime = 120
+type Mode = "doctor" | "patient";
 
-const OtpPage = () => {
-  const params = useSearchParams()
-  console.log(params)
-  const email = params.get("email")
+type Props = {
+  mode: Mode;
+  resendTime: number;
+};
+
+const OtpPage = (props: Props) => {
+  const params = useSearchParams();
+  console.log(params);
+  const email = params.get("email");
 
   if (!email) {
-    redirect('/register')
+    redirect("/register");
   }
 
-  const [otp, setOtp] = useState('')
-  const [isInvalid, setIsInvalid] = useState(false)
-  const [resendOtpCount, setResendOtpCount] = useState(resendTime)
+  const [otp, setOtp] = useState("");
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [resendOtpCount, setResendOtpCount] = useState(0);
 
-  const { mutate, isPending } = useEmailVerify()
+  const { mutate: verifyPatient, isPending: isPendingPatient } =
+    useEmailVerify();
+  const { mutate: verifyDoctor, isPending: isPendingDoctor } =
+    useDoctorEmailVerify();
+
+  const verify = props.mode === "doctor" ? verifyDoctor : verifyPatient;
 
   useEffect(() => {
-    if (resendOtpCount < 1) {
-      return
+    const storageKey = `otp-expiry-${props.mode}-${email}`;
+    const savedExpiry = localStorage.getItem(storageKey);
+
+    const now = Date.now();
+    let expiryTime: number;
+
+    if (savedExpiry) {
+      expiryTime = parseInt(savedExpiry, 10);
+
+      if (expiryTime < now) {
+        expiryTime = now + props.resendTime * 1000;
+        localStorage.setItem(storageKey, expiryTime.toString());
+      }
+    } else {
+      expiryTime = now + props.resendTime * 1000;
+      localStorage.setItem(storageKey, expiryTime.toString());
     }
+
+    const initialRemaining = Math.max(0, Math.ceil((expiryTime - now) / 1000));
+    setResendOtpCount(initialRemaining);
+
+    if (initialRemaining < 1) return;
+
     const timer = setInterval(() => {
-      setResendOtpCount((prev) => prev - 1)
+      const remaining = Math.max(
+        0,
+        Math.ceil((expiryTime - Date.now()) / 1000),
+      );
+      setResendOtpCount(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+      }
     }, 1000);
 
-    return () => clearInterval(timer)
-  })
+    return () => clearInterval(timer);
+  }, [email, props.mode, props.resendTime]);
 
   const handleSubmit = () => {
-
     if (otp.length !== 6) {
-      setIsInvalid(true)
+      setIsInvalid(true);
       return;
     }
     const data = {
       email,
-      otp
-    }
+      otp,
+    };
 
-    console.log(data)
+    console.log(data);
 
-    mutate(data, {
+    verify(data, {
       onSuccess: (res) => {
-        toast.success(res.message)
-        redirect(`/patient-dashboard`)
+        localStorage.removeItem(`otp-expiry-${props.mode}-${email}`);
+        if (props.mode === "doctor") {
+          toast.success(res.message);
+          redirect(`/`);
+        }
+        if (props.mode === "patient") {
+          toast.success(res.message);
+          redirect(`/login`);
+        }
       },
       onError: (err) => {
-        console.log(err)
-        toast.error(err.message)
-      }
-    })
-  }
+        console.log(err);
+        toast.error(err.message);
+      },
+    });
+  };
 
   return (
     <Card className="mx-auto max-w-md">
@@ -76,11 +133,11 @@ const OtpPage = () => {
       </CardHeader>
       <CardContent>
         <form
-          id='otp-form'
+          id="otp-form"
           onSubmit={(e) => {
             e.preventDefault();
-            e.stopPropagation()
-            handleSubmit()
+            e.stopPropagation();
+            handleSubmit();
           }}
         >
           <Field data-invalid={isInvalid}>
@@ -88,24 +145,30 @@ const OtpPage = () => {
               <FieldLabel htmlFor="otp-verification">
                 Verification code
               </FieldLabel>
-              <Button disabled={resendOtpCount > 0} type="button" variant="outline" size="xs">
+              <Button
+                disabled={resendOtpCount > 0}
+                type="button"
+                variant="outline"
+                size="xs"
+              >
                 <RefreshCwIcon />
                 Resend Code
               </Button>
             </div>
             <InputOTP
               onChange={(val) => {
-                setOtp(val)
+                setOtp(val);
                 if (isInvalid) {
-                  setIsInvalid(false)
+                  setIsInvalid(false);
                 }
               }}
               maxLength={6}
               id="otp-verification"
-              name='otp'
+              name="otp"
               value={otp}
               pattern={REGEXP_ONLY_DIGITS}
-              required>
+              required
+            >
               <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
                 <InputOTPSlot index={0} />
                 <InputOTPSlot index={1} />
@@ -118,25 +181,33 @@ const OtpPage = () => {
                 <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
-            {
-              isInvalid && (
-                <FieldError errors={[{ message: 'Must be 6 digit' }]} />
-              )
-            }
+            {isInvalid && (
+              <FieldError errors={[{ message: "Must be 6 digit" }]} />
+            )}
           </Field>
 
-          <CardDescription className={`${resendOtpCount < 1 ? 'opacity-0' : 'opacity-100'}`}>Resend in {resendOtpCount}</CardDescription>
-
+          <CardDescription
+            className={`${resendOtpCount < 1 ? "opacity-0" : "opacity-100"}`}
+          >
+            Resend in {formatMinutesSecond(resendOtpCount)}
+          </CardDescription>
         </form>
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" disabled={resendOtpCount < 1} form="otp-form" className="w-full">
-            {isPending ? <>
-              <Spinner /> Verify
-            </>
-              : 'Verify'
-            }
+          <Button
+            type="submit"
+            disabled={resendOtpCount < 1}
+            form="otp-form"
+            className="w-full"
+          >
+            {isPendingPatient || isPendingDoctor ? (
+              <>
+                <Spinner /> Verify
+              </>
+            ) : (
+              "Verify"
+            )}
           </Button>
         </Field>
       </CardFooter>

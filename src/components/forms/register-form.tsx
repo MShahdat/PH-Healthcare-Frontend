@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useForm } from "@tanstack/react-form";
-import { registerZodSchema } from "@/validation/auth/auth.schema";
+import { registerZodSchema } from "@/validation/auth.schema";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import GoogleAuth from "../module/googleAuth/googleAuth";
@@ -28,14 +28,14 @@ export function RegisterForm({
   ...props
 }: React.ComponentProps<"form">) {
   const [showPass, setShowPass] = useState(false);
-  const { mutate, isPending } = useRegister()
+  const { mutate, isPending } = useRegister();
 
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       password: "@Pa123456",
-      confirmPassword: "@Pa123456"
+      confirmPassword: "@Pa123456",
     },
     validators: {
       onSubmit: registerZodSchema,
@@ -45,20 +45,20 @@ export function RegisterForm({
       const data = {
         name: value.name,
         email: value.email,
-        password: value.password
-      }
+        password: value.password,
+      };
 
       mutate(data, {
         onSuccess: (res) => {
-          toast.success(res.message)
-          const params = new URLSearchParams({ email: value.email })
-          redirect(`/register/email-verify?${params.toString()}`)
+          toast.success(res.message);
+          const params = new URLSearchParams({ email: value.email });
+          redirect(`/register/email-verify?${params.toString()}`);
         },
         onError: (err) => {
-          console.log(err)
-          toast.error(err.message)
-        }
-      })
+          console.log(err);
+          toast.error(err.message);
+        },
+      });
     },
   });
 
@@ -85,7 +85,9 @@ export function RegisterForm({
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="name">Full Name</FieldLabel>
+                  <FieldLabel htmlFor="name">
+                    Full Name<span className="text-red-500">*</span>
+                  </FieldLabel>
                   <Input
                     id={field.name}
                     type="text"
@@ -107,7 +109,9 @@ export function RegisterForm({
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="email">
+                    Email<span className="text-red-500">*</span>
+                  </FieldLabel>
                   <Input
                     id={field.name}
                     type="email"
@@ -131,7 +135,9 @@ export function RegisterForm({
               return (
                 <Field data-invalid={isInvalid}>
                   <div className="flex items-center">
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">
+                      Password<span className="text-red-500">*</span>
+                    </FieldLabel>
                   </div>
                   <div>
                     <div className="relative">
@@ -140,7 +146,11 @@ export function RegisterForm({
                         onClick={() => setShowPass(!showPass)}
                         className="absolute top-1/2 right-4 -translate-y-1/2"
                       >
-                        {!showPass ? <EyeClosed className="size-4" /> : <Eye className="size-4" />}
+                        {!showPass ? (
+                          <EyeClosed className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
                       </button>
                       <Input
                         id={field.name}
@@ -153,7 +163,9 @@ export function RegisterForm({
                         required
                       />
                     </div>
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
                   </div>
                 </Field>
               );
@@ -166,7 +178,9 @@ export function RegisterForm({
               return (
                 <Field data-invalid={isInvalid}>
                   <div className="flex items-center">
-                    <FieldLabel htmlFor="password">Confirm Password</FieldLabel>
+                    <FieldLabel htmlFor="password">
+                      Confirm Password<span className="text-red-500">*</span>
+                    </FieldLabel>
                   </div>
                   <div>
                     <div className="relative">
@@ -175,7 +189,11 @@ export function RegisterForm({
                         onClick={() => setShowPass(!showPass)}
                         className="absolute top-1/2 right-4 -translate-y-1/2"
                       >
-                        {!showPass ? <EyeClosed className="size-4" /> : <Eye className="size-4" />}
+                        {!showPass ? (
+                          <EyeClosed className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
                       </button>
                       <Input
                         id={field.name}
@@ -188,7 +206,9 @@ export function RegisterForm({
                         required
                       />
                     </div>
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
                   </div>
                 </Field>
               );
@@ -196,20 +216,30 @@ export function RegisterForm({
           </form.Field>
           <Field>
             <Button disabled={isPending ? true : false} type="submit">
-              {
-                isPending ?
-                  <>
-                    <Spinner /> Creating
-                  </> :
-                  "Create Account"
-              }
+              {isPending ? (
+                <>
+                  <Spinner /> Creating
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </Field>
           <FieldSeparator>Or continue with</FieldSeparator>
           <GoogleAuth />
           <Field>
-            <FieldDescription className="px-6 text-center">
-              Already have an account? <Link href="/login">Sign in</Link>
+            <FieldDescription className="">
+              Already have an account?{" "}
+              <Link href="/login" className="font-semibold">
+                Sign in
+              </Link>{" "}
+              Apply as a doctor?{" "}
+              <Link
+                href="/doctor-apply"
+                className="underline font-semibold underline-offset-4"
+              >
+                Apply here
+              </Link>
             </FieldDescription>
           </Field>
         </FieldGroup>
