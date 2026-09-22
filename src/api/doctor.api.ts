@@ -1,5 +1,10 @@
 import apiClient from "@/lib/apiClient";
-import { DoctorApplicationPayload } from "@/types";
+import {
+  ApiResponse,
+  Doctor,
+  DoctorApplicationPayload,
+  QueryParams,
+} from "@/types";
 
 export const doctorApply = (payload: DoctorApplicationPayload) => {
   const formData = new FormData();
@@ -21,5 +26,11 @@ export const doctorVerifyEmail = (payload: { email: string; otp: string }) => {
   return apiClient("/doctor/apply-doctor/email-verify", {
     method: "POST",
     body: payload,
+  });
+};
+
+export const getAllDoctors = (params: QueryParams) => {
+  return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors", {
+    params,
   });
 };

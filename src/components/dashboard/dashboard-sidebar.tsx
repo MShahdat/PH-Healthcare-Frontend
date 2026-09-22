@@ -1,4 +1,5 @@
-import * as React from "react";
+"use client";
+
 import { ChevronRight } from "lucide-react";
 
 import {
@@ -24,46 +25,7 @@ import { SidebarRoutes, UserRole } from "@/types";
 import { adminRoute } from "@/route/admin.route";
 import { doctorRoute } from "@/route/doctor.route";
 import { patientRoute } from "@/route/patient.route";
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: `#`,
-      items: [
-        {
-          title: "Overview",
-          url: `#`,
-          isActive: true,
-        },
-      ],
-    },
-    {
-      title: "Doctor",
-      url: "#",
-      items: [
-        {
-          title: "Doctor Aproval",
-          url: "#",
-        },
-        {
-          title: "Dotors",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Patient",
-      url: "#",
-      items: [
-        {
-          title: "Patients",
-          url: "#",
-        },
-      ],
-    },
-  ],
-};
+import { usePathname } from "next/navigation";
 
 const sidebarRoutes: Partial<Record<UserRole, SidebarRoutes>> = {
   SUPER_ADMIN: adminRoute,
@@ -74,6 +36,8 @@ const sidebarRoutes: Partial<Record<UserRole, SidebarRoutes>> = {
 
 export function DashboardSidebar({ role }: { role: UserRole }) {
   const routes: SidebarRoutes = sidebarRoutes[role] || [];
+  const pathname = usePathname();
+  // console.log(pathname)
 
   return (
     <Sidebar>
@@ -106,8 +70,11 @@ export function DashboardSidebar({ role }: { role: UserRole }) {
                   <SidebarMenu>
                     {item.items?.map((item) => (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton>
-                          <Link href={item.url}>{item.title}</Link>
+                        <SidebarMenuButton
+                          render={<Link href={item.url}></Link>}
+                          isActive={pathname === item.url}
+                        >
+                          {item.title}
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}

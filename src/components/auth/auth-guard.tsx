@@ -9,7 +9,7 @@ const AuthGuard = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   const { data, isError, isPending } = useGetMe();
-  console.log(data);
+  // console.log(data);
 
   const user = data?.data;
   useEffect(() => {

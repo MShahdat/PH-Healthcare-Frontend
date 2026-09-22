@@ -17,11 +17,11 @@ export const adminRoute = [
     items: [
       {
         title: "Doctor Aproval",
-        url: "#",
+        url: `${prefix}/doctor-approval`,
       },
       {
         title: "Dotors",
-        url: "#",
+        url: `${prefix}/all-doctors`,
       },
     ],
   },
@@ -31,7 +31,7 @@ export const adminRoute = [
     items: [
       {
         title: "Patients",
-        url: "#",
+        url: `${prefix}/all-patients`,
       },
     ],
   },

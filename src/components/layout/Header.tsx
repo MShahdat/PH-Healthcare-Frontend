@@ -4,25 +4,35 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import Logo from "@/assets/logo";
 import { useGetMe, useLogout } from "@/hooks";
-import { logout } from "@/api";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import AuthLoading from "../auth/auth-loading";
+import type { UserRole } from "@/types";
 
 const Header = () => {
-  const route = [
-    { name: "Home", url: "/" },
-    { name: "About Us", url: "/about-us" },
-    { name: "Contact", url: "/contact" },
-  ];
-
   const { data, isError, isPending } = useGetMe();
   // console.log({
   //   data,
   //   isError,
   //   isLoading
   // })
+
+  const role = data?.data.role as UserRole | undefined;
+  const dashboardUrl = role
+    ? {
+        SUPER_ADMIN: "/admin-dashboard",
+        ADMIN: "/admin-dashboard",
+        DOCTOR: "/doctor-dashboard",
+        PATIENT: "/patient-dashboard",
+      }[role]
+    : undefined;
+
+  const route = [
+    { name: "Home", url: "/" },
+    { name: "About Us", url: "/about-us" },
+    ...(dashboardUrl ? [{ name: "Dashboard", url: dashboardUrl }] : []),
+    { name: "Contact", url: "/contact" },
+  ];
 
   const { mutate } = useLogout();
   const queryClient = useQueryClient();
