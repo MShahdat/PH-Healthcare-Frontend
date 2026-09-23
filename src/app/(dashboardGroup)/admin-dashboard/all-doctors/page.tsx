@@ -1,3 +1,16 @@
+"use client";
+
+import DoctorsTable from "@/components/module/doctor/all-doctors/doctors-table";
+import { Card } from "@/components/ui/card";
+import { ItemShow, Sort } from "@/constants";
+import Paginations from "@/constants/pagination";
+import SearchBar from "@/constants/search-bar";
+import { useSuspenseGetAllDoctors } from "@/hooks";
+import GenericTableSkeleton from "@/loading/table.loading";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { DoctorsFilter } from "./doctor-filters";
+
 const AllDoctorsPage = () => {
   return (
     <section className="p-4 space-y-4">
@@ -9,6 +22,27 @@ const AllDoctorsPage = () => {
           impedit doloribus?
         </p>
       </div>
+      <Card>
+        <div className="px-4 sm:flex items-center justify-between space-y-4">
+          <div className="">
+            <SearchBar />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <DoctorsFilter />
+            </div>
+            <div className="flex items-center gap-1">
+              <p>Show</p>
+              <ItemShow />
+            </div>
+          </div>
+        </div>
+      </Card>
+      <Suspense
+        fallback={<GenericTableSkeleton columnCount={8} rowCount={8} />}
+      >
+        <DoctorsTable />
+      </Suspense>
     </section>
   );
 };

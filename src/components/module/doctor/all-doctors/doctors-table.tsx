@@ -8,26 +8,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useSuspenseGetAllDoctors } from "@/hooks";
-import { ApprovalModal } from "./approval-modal";
+
 import { Button } from "@/components/ui/button";
+import { Doctor } from "@/types";
+import { Badge } from "@/components/ui/badge";
 import Paginations from "@/constants/pagination";
 import { useSearchParams } from "next/navigation";
+import { useSuspenseGetAllDoctors } from "@/hooks";
 
-const DoctorApprovalTable = () => {
+const DoctorsTable = () => {
   const searchParams = useSearchParams();
-  const params = {
-    ...Object.fromEntries(searchParams.entries()),
-    verificationStatus: "PENDING",
-  };
-
+  const params = Object.fromEntries(searchParams.entries());
   const { data } = useSuspenseGetAllDoctors(params);
 
-  if (!data?.success || !data.meta || data.data.length === 0) {
-    return <p className="text-center text-red-600">no pending doctor found</p>;
-  }
-
   const allDoctors = data.data || [];
+  console.log(allDoctors);
+
+  if (!data?.success || !data.meta || data.data.length === 0) {
+    return <p className="text-center text-red-600">no doctor found</p>;
+  }
 
   return (
     <div className="space-y-4">
@@ -42,8 +41,8 @@ const DoctorApprovalTable = () => {
               <TableHead>Licence No.</TableHead>
               <TableHead>Exprericne (Y)</TableHead>
               <TableHead>Education</TableHead>
-              {/* <TableHead>Status</TableHead> */}
-              <TableHead className="text-right">Review</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -57,14 +56,15 @@ const DoctorApprovalTable = () => {
                   <TableCell>{doctor.licenceNumber}</TableCell>
                   <TableCell>{doctor.experienceYears}</TableCell>
                   <TableCell>{doctor.qualifications}</TableCell>
+                  <TableCell>
+                    <Badge variant={"secondary"}>
+                      {doctor.verificationStatus}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
-                    {doctor.user.emailVerified ? (
-                      <ApprovalModal doctor={doctor} />
-                    ) : (
-                      <Button size={"sm"} variant={"outline"} disabled>
-                        Not Verified
-                      </Button>
-                    )}
+                    <Button variant={"outline"} size={"sm"}>
+                      action
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
@@ -77,4 +77,4 @@ const DoctorApprovalTable = () => {
   );
 };
 
-export default DoctorApprovalTable;
+export default DoctorsTable;

@@ -4,7 +4,12 @@ import {
   doctorVerifyEmail,
   getAllDoctors,
 } from "@/api";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { QueryParams } from "../types/doctor.type";
 
 export const useDoctorApply = () => {
@@ -34,7 +39,13 @@ export const useSuspenseGetAllDoctors = (params: QueryParams) => {
 };
 
 export const useDoctorReview = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: doctorReview,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["all-doctors"],
+      });
+    },
   });
 };

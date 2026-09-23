@@ -6,7 +6,7 @@ import {
   userLogin,
   userRegister,
 } from "@/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useRegister = () => {
   return useMutation({
@@ -33,8 +33,14 @@ export const useGoogle = () => {
 };
 
 export const useLogout = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: logout,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["user"],
+      });
+    },
   });
 };
 

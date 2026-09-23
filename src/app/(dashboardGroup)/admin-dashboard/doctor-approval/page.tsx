@@ -3,35 +3,16 @@
 import { ApprovalSelector } from "@/components/module/doctor/doctor-approval/approval-selector";
 import DoctorApprovalTable from "@/components/module/doctor/doctor-approval/approval-table";
 import { Card } from "@/components/ui/card";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { ItemShow } from "@/constants";
+
+import { useSuspenseGetAllDoctors } from "@/hooks";
 import GenericTableSkeleton from "@/loading/table.loading";
-import { SearchIcon } from "lucide-react";
-import { Suspense } from "react";
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import Paginations from "@/constants/pagination";
+import SearchBar from "@/constants/search-bar";
+import { useSearchParams } from "next/navigation";
 
 const DoctorApprovalPage = () => {
-  const [specialization, setSpecialization] = useState<string | null>(null);
-  const [limit, setLimit] = useState<string | null>(null);
-  const [search, setSearch] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 1000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [search]);
-
-  const params = {
-    ...(specialization ? { specialization } : {}),
-    ...(limit ? { limit } : {}),
-    ...(debouncedSearch ? { search: debouncedSearch } : {}),
-    verificationStatus: "PENDING",
-  };
-
   return (
     <section className="p-4 space-y-8">
       <div className="text-center space-y-2">
@@ -49,32 +30,16 @@ const DoctorApprovalPage = () => {
             <h1 className="text-lg md:text-xl lg:text-2xl font-semibold">
               Pending Doctors
             </h1>
-            <div className="relative max-w-sm">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Field>
-                <Input
-                  className="pl-8"
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
-                  placeholder="Searching...."
-                />
-              </Field>
-            </div>
+            <SearchBar />
           </div>
           <div className="flex items-center md:gap-4 gap-8">
             <div className="flex items-center gap-1">
               <p>Show</p>
-              <ItemShow value={limit} onChange={setLimit} />
+              <ItemShow />
             </div>
             <div className="flex items-center gap-1">
               <p>Filter</p>
-              <ApprovalSelector
-                value={specialization}
-                onChange={setSpecialization}
-              />
+              <ApprovalSelector />
             </div>
           </div>
         </div>
@@ -84,7 +49,7 @@ const DoctorApprovalPage = () => {
         <Suspense
           fallback={<GenericTableSkeleton columnCount={8} rowCount={8} />}
         >
-          <DoctorApprovalTable params={params} />
+          <DoctorApprovalTable />
         </Suspense>
       </div>
     </section>

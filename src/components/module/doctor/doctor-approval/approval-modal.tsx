@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FileText, Loader2 } from "lucide-react";
-import type { Doctor, IDoctorReview } from "@/types";
+import type { Doctor, IDoctorReview, ReviewStatus } from "@/types";
 import { useDoctorReview } from "@/hooks";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -58,42 +58,21 @@ export function ApprovalModal({ doctor }: { doctor: Doctor }) {
 
   const { mutate, isPending } = useDoctorReview();
 
-  const handleApproved = () => {
+  const handleAction = (status: ReviewStatus) => {
     const reviewData: IDoctorReview = {
       email: doctor.email,
-      verificationStatus: "APPROVED",
-    };
-    console.log(reviewData);
-    mutate(reviewData, {
-      onSuccess: (res) => {
-        toast.success(res.message);
-        reset();
-        setOpen(!open);
-      },
-      onError: (er) => {
-        toast.error(er.message);
-        return;
-      },
-    });
-  };
-
-  const handleRejection = () => {
-    const reviewData: IDoctorReview = {
-      email: doctor.email,
-      verificationStatus: "REJECTED",
+      verificationStatus: status,
       rejectionReason,
     };
     console.log(reviewData);
     mutate(reviewData, {
       onSuccess: (res) => {
         toast.success(res.message);
-        // console.log(res)
         reset();
         setOpen(!open);
       },
       onError: (er) => {
         toast.error(er.message);
-        console.log(er);
         return;
       },
     });
@@ -107,7 +86,13 @@ export function ApprovalModal({ doctor }: { doctor: Doctor }) {
         if (!next) reset();
       }}
     >
-      <DialogTrigger render={<Button variant="outline">Review</Button>} />
+      <DialogTrigger
+        render={
+          <Button size={"sm"} variant="outline">
+            Review
+          </Button>
+        }
+      />
       <DialogContent className="max-h-[calc(100dvh-2rem)] min-w-0 overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <div className="flex items-start justify-between gap-4">
@@ -228,7 +213,10 @@ export function ApprovalModal({ doctor }: { doctor: Doctor }) {
               >
                 Reject
               </Button>
-              <Button onClick={() => handleApproved()} disabled={submitting}>
+              <Button
+                onClick={() => handleAction("APPROVED")}
+                disabled={submitting}
+              >
                 {submitting && (
                   <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
                 )}
@@ -252,7 +240,7 @@ export function ApprovalModal({ doctor }: { doctor: Doctor }) {
               </Button>
               <Button
                 variant="destructive"
-                onClick={() => handleRejection()}
+                onClick={() => handleAction("REJECTED")}
                 disabled={submitting || !rejectionReason.trim()}
               >
                 {submitting && (
