@@ -1,4 +1,3 @@
-
 const AllDoctorsPage = () => {
   return (
     <section className="p-4 space-y-4">

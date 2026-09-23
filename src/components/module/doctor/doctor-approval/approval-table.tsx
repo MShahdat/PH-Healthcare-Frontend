@@ -8,15 +8,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import DoctorApprovalSheet from "./approval-sheet";
-import { useSuspenseGetAllDoctors } from "@/hooks";
+import { useAllDoctors, useSuspenseGetAllDoctors } from "@/hooks";
 import { QueryParams } from "@/types";
+import { ApprovalModal } from "./approval-modal";
+import GenericTableSkeleton from "@/loading/table.loading";
 
 const DoctorApprovalTable = ({ params }: { params: QueryParams }) => {
-  const { data } = useSuspenseGetAllDoctors(params);
+  // const { data } = useSuspenseGetAllDoctors(params);
 
-  const allDoctors = data.data;
+  const { data, isError, isPending } = useAllDoctors(params);
+
+  const allDoctors = data?.data || [];
   // console.log('all', allDoctors)
+
+  if (isPending) {
+    return <GenericTableSkeleton columnCount={8} rowCount={6} />;
+  }
+
+  if (allDoctors.length === 0) {
+    return <p className="text-center text-red-600">no pending doctor found</p>;
+  }
 
   return (
     <div className="border rounded-lg">
@@ -47,7 +58,7 @@ const DoctorApprovalTable = ({ params }: { params: QueryParams }) => {
                 <TableCell>{doctor.experienceYears}</TableCell>
                 <TableCell>{doctor.qualifications}</TableCell>
                 <TableCell className="text-right">
-                  <DoctorApprovalSheet />
+                  <ApprovalModal doctor={doctor} />
                 </TableCell>
               </TableRow>
             );

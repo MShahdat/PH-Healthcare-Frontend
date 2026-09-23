@@ -53,6 +53,14 @@ export interface AdditionalFile {
   publicId: string;
 }
 
+export type ReviewStatus = "APPROVED" | "REJECTED";
+
+export interface IDoctorReview {
+  email: string;
+  verificationStatus: ReviewStatus;
+  rejectionReason?: string;
+}
+
 export interface QueryParams {
   search?: string;
   sortOrder?: string;

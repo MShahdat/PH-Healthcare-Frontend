@@ -3,6 +3,7 @@ import {
   ApiResponse,
   Doctor,
   DoctorApplicationPayload,
+  IDoctorReview,
   QueryParams,
 } from "@/types";
 
@@ -32,5 +33,12 @@ export const doctorVerifyEmail = (payload: { email: string; otp: string }) => {
 export const getAllDoctors = (params: QueryParams) => {
   return apiClient<ApiResponse<Doctor[]>>("/doctor/all-doctors", {
     params,
+  });
+};
+
+export const doctorReview = (payload: IDoctorReview) => {
+  return apiClient("/doctor/approved-doctor", {
+    method: "POST",
+    body: payload,
   });
 };

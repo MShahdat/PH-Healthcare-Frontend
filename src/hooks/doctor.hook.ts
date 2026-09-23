@@ -1,4 +1,9 @@
-import { doctorApply, doctorVerifyEmail, getAllDoctors } from "@/api";
+import {
+  doctorApply,
+  doctorReview,
+  doctorVerifyEmail,
+  getAllDoctors,
+} from "@/api";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { QueryParams } from "../types/doctor.type";
 
@@ -25,5 +30,11 @@ export const useSuspenseGetAllDoctors = (params: QueryParams) => {
   return useSuspenseQuery({
     queryKey: ["all-doctors", params],
     queryFn: () => getAllDoctors(params),
+  });
+};
+
+export const useDoctorReview = () => {
+  return useMutation({
+    mutationFn: doctorReview,
   });
 };
