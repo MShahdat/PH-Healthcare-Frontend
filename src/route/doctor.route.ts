@@ -17,7 +17,7 @@ export const doctorRoute = [
     items: [
       {
         title: "Create Schedule",
-        url: "#",
+        url: `${prefix}/schedules`,
       },
       {
         title: "",

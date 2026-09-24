@@ -33,8 +33,10 @@ export function LoginForm({
 
   const form = useForm({
     defaultValues: {
-      email: "testeradmin@gmail.com",
-      password: "@testerAdmin123",
+      // email: "testeradmin@gmail.com",
+      // password: "@testerAdmin123",
+      email: "shahddat@gmail.com",
+      password: "cC3&RdlmbN",
     },
     validators: {
       onSubmit: loginZodSchema,

@@ -5,9 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ItemShow, Sort } from "@/constants";
 import Paginations from "@/constants/pagination";
 import SearchBar from "@/constants/search-bar";
-import { useSuspenseGetAllDoctors } from "@/hooks";
 import GenericTableSkeleton from "@/loading/table.loading";
-import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { DoctorsFilter } from "./doctor-filters";
 
